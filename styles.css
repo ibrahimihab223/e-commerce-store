@@ -20,10 +20,13 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 body {
     margin: 0;
+    min-width: 0;
+    overflow-x: hidden;
     color: var(--ink);
     background-color: var(--paper);
     background-image: radial-gradient(rgba(20, 35, 34, .08) .7px, transparent .7px);
@@ -839,6 +842,16 @@ body.theme-dark .button-dark {
 
 @media (max-width: 520px) {
 
+    .hero,
+    .hero-copy,
+    .hero-profile,
+    .section-heading,
+    .about-grid,
+    .contact-section {
+        width: 100%;
+        min-width: 0;
+    }
+
     .section-shell,
     .site-header {
         width: calc(100% - 24px);
@@ -918,10 +931,12 @@ body.theme-dark .button-dark {
 
     .hero-profile {
         min-height: 280px;
+        transform: none;
     }
 
     .profile-frame {
         width: min(250px, 76vw);
+        transform: none;
     }
 
     .hero::before {
@@ -949,6 +964,11 @@ body.theme-dark .button-dark {
 
     .project-info p {
         font-size: 12px;
+    }
+
+    .project-card,
+    .button-dark {
+        transform: none;
     }
 }
 
