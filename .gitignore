@@ -1,0 +1,20 @@
+# Environment variables
+.env*.local
+.env
+.env.*
+
+# Local database and runtime files
+*.sqlite
+*.sqlite3
+*.log
+
+# PHP tooling and local OS files
+vendor/
+.idea/
+.vscode/
+Thumbs.db
+
+# Common ignores
+node_modules
+.next/
+.DS_Store
