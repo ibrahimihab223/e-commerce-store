@@ -1,5 +1,43 @@
 <?php
 require_once __DIR__ . '/database.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json; charset=utf-8');
+
+    $payload = json_decode(file_get_contents('php://input'), true);
+    $payload = is_array($payload) ? $payload : $_POST;
+    $name = trim((string) ($payload['name'] ?? ''));
+    $email = trim((string) ($payload['email'] ?? ''));
+    $message = trim((string) ($payload['message'] ?? ''));
+
+    if ($name === '' || mb_strlen($name) > 120) {
+        http_response_code(422);
+        echo json_encode(['message' => 'اكتب اسمًا صحيحًا.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 190) {
+        http_response_code(422);
+        echo json_encode(['message' => 'اكتب بريدًا إلكترونيًا صحيحًا.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if ($message === '' || mb_strlen($message) > 5000) {
+        http_response_code(422);
+        echo json_encode(['message' => 'اكتب تفاصيل رسالتك.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if (!saveContactMessage($name, $email, $message)) {
+        http_response_code(500);
+        echo json_encode(['message' => 'تعذر حفظ الرسالة حاليًا.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    echo json_encode(['message' => 'تم استلام رسالتك بنجاح، وسأعود إليك قريبًا.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $theme = ($_GET['theme'] ?? 'light') === 'dark' ? 'theme-dark' : 'theme-light';
 
 $profile = [
@@ -194,7 +232,7 @@ $skills = ['PHP', 'MySQL', 'HTML / CSS', 'Git'];
             <div class="section-shell about-grid"><div><p class="eyebrow">بضع كلمات عني</p><h2>الكود الجيد<br>يبدأ بـ <em>فكرة جيدة.</em></h2></div><div class="about-copy"><p>أعمل على بناء مواقع وتطبيقات تجعل التكنولوجيا أقرب للناس. أوازن بين التفكير المنطقي واللمسة الإبداعية لأصنع حلولًا تبدو بسيطة، لأنها مدروسة جيدًا.</p><p>من أول سطر PHP إلى آخر تفصيلة في الواجهة، أؤمن أن كل قرار تقني يجب أن يخدم تجربة الإنسان.</p><div class="skills-list"><?php foreach ($skills as $skill): ?><span><?php echo htmlspecialchars($skill); ?></span><?php endforeach; ?></div></div></div>
         </section>
 
-        <section id="contact" class="contact-section section-shell"><div class="contact-copy"><p class="eyebrow">هل لديك فكرة؟</p><h2>لنصنع شيئًا<br><em>يستحق الزيارة.</em></h2></div><div class="contact-details"><p>أرسل لي نبذة عن مشروعك، وسأعود إليك خلال يومي عمل.</p><a class="contact-email" href="mailto:<?php echo htmlspecialchars($profile['email']); ?>"><?php echo htmlspecialchars($profile['email']); ?> <span aria-hidden="true">↗</span></a><div class="contact-actions"><a class="contact-phone" href="tel:<?php echo htmlspecialchars($profile['phone']); ?>">اتصل بي: <?php echo htmlspecialchars($profile['phone']); ?></a><a class="whatsapp-link" href="https://wa.me/201003758450" target="_blank" rel="noreferrer">واتساب ↗</a></div><p class="location"><?php echo htmlspecialchars($profile['location']); ?> · أعمل عن بُعد</p></div></section>
+        <section id="contact" class="contact-section section-shell"><div class="contact-copy"><p class="eyebrow">هل لديك فكرة؟</p><h2>لنصنع شيئًا<br><em>يستحق الزيارة.</em></h2></div><div class="contact-details"><p>أرسل لي نبذة عن مشروعك، وسأعود إليك خلال يومي عمل.</p><form class="contact-form" data-contact-form><label for="contact-name">الاسم</label><input id="contact-name" name="name" type="text" maxlength="120" autocomplete="name" required><label for="contact-email">البريد الإلكتروني</label><input id="contact-email" name="email" type="email" maxlength="190" autocomplete="email" required><label for="contact-message">رسالتك</label><textarea id="contact-message" name="message" rows="5" maxlength="5000" required></textarea><button class="button button-dark" type="submit">إرسال الرسالة <span aria-hidden="true">↗</span></button><p class="form-status" data-form-status role="status" aria-live="polite"></p></form><a class="contact-email" href="mailto:<?php echo htmlspecialchars($profile['email']); ?>"><?php echo htmlspecialchars($profile['email']); ?> <span aria-hidden="true">↗</span></a><div class="contact-actions"><a class="contact-phone" href="tel:<?php echo htmlspecialchars($profile['phone']); ?>">اتصل بي: <?php echo htmlspecialchars($profile['phone']); ?></a><a class="whatsapp-link" href="https://wa.me/201003758450" target="_blank" rel="noreferrer">واتساب ↗</a></div><p class="location"><?php echo htmlspecialchars($profile['location']); ?> · أعمل عن بُعد</p></div></section>
     </main>
 
     <footer class="site-footer section-shell"><span>© <?php echo date('Y'); ?> <?php echo htmlspecialchars($profile['name']); ?></span><span>صُمم وطُوّر بعناية</span><a href="#top">إلى الأعلى ↑</a></footer>
