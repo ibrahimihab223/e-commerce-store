@@ -1,0 +1,7 @@
+{
+  "name": "e-commerce-store",
+  "private": true,
+  "scripts": {
+    "dev": "php -S localhost:8000 -t ."
+  }
+}
